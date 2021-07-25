@@ -5,7 +5,7 @@ import useDarkMode from '../src';
 
 afterEach(cleanup);
 
-const createTestElement = arr => ({
+const createTestElement = (arr) => ({
   classList: {
     add: (className) => {
       arr.push({ method: 'add', className });
@@ -77,17 +77,22 @@ describe('useDarkMode without onChange', () => {
     let callback;
 
     const mockGlobal = {
-      matchMedia: media => ({
+      matchMedia: (media) => ({
         media,
         match: false,
-        addListener: (handler) => { callback = handler; },
+        addListener: (handler) => {
+          callback = handler;
+        },
         removeistener: () => {},
       }),
     };
 
     let value;
     testHook(() => {
-      ({ value } = useDarkMode(false, { storageKey: null, global: mockGlobal }));
+      ({ value } = useDarkMode(false, {
+        storageKey: null,
+        global: mockGlobal,
+      }));
     });
     callback({ matches: true });
     expect(value).toBe(true);
@@ -97,10 +102,12 @@ describe('useDarkMode without onChange', () => {
     let callback;
 
     const mockGlobal = {
-      matchMedia: media => ({
+      matchMedia: (media) => ({
         media,
         match: true,
-        addListener: (handler) => { callback = handler; },
+        addListener: (handler) => {
+          callback = handler;
+        },
         removeistener: () => {},
       }),
     };
@@ -119,7 +126,10 @@ describe('useDarkMode with onChange', () => {
     let enable;
     const handler = jest.fn();
     testHook(() => {
-      ({ enable } = useDarkMode(false, { storageKey: null, onChange: handler }));
+      ({ enable } = useDarkMode(false, {
+        storageKey: null,
+        onChange: handler,
+      }));
     });
     act(enable);
     expect(handler).toHaveBeenCalledWith(true);
@@ -128,7 +138,10 @@ describe('useDarkMode with onChange', () => {
     let disable;
     const handler = jest.fn();
     testHook(() => {
-      ({ disable } = useDarkMode(true, { storageKey: null, onChange: handler }));
+      ({ disable } = useDarkMode(true, {
+        storageKey: null,
+        onChange: handler,
+      }));
     });
     act(disable);
     expect(handler).toHaveBeenCalledWith(false);
@@ -151,10 +164,10 @@ describe('useDarkMode and default `onChange`', () => {
     const mockElement = createTestElement(calls);
 
     testHook(() => {
-      (useDarkMode(true, {
+      useDarkMode(true, {
         storageKey: null,
         element: mockElement,
-      }));
+      });
     });
     expect(calls.length).toBe(2);
     expect(calls[0]).toEqual({ method: 'add', className: 'dark-mode' });
@@ -188,7 +201,9 @@ describe('useDarkMode and default `onChange`', () => {
     const data = [];
     const mockProvider = {
       getItem: () => null,
-      setItem: (key, value) => { data.push([key, value]); },
+      setItem: (key, value) => {
+        data.push([key, value]);
+      },
     };
 
     let toggle;
@@ -199,12 +214,11 @@ describe('useDarkMode and default `onChange`', () => {
         onChange: () => {},
       }));
     });
-    expect(data.length).toBe(1);
-    expect(data[0]).toEqual(['key', 'true']);
+    expect(data.length).toBe(0);
 
     act(toggle);
 
-    expect(data.length).toBe(2);
-    expect(data[1]).toEqual(['key', 'false']);
+    expect(data.length).toBe(1);
+    expect(data[0]).toEqual(['key', 'false']);
   });
 });
